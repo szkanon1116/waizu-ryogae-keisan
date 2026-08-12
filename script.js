@@ -23,26 +23,13 @@ const TARGET = {
 };
 
 const TARGET_TOTAL = 70000;
-
-// 50円は明日の釣り銭として必ず残し、売上として抜かない
-const SALES_PRIORITY = [
-    10,
-    5,
-    1,
-    10000,
-    1000,
-    500,
-    100,
-    5000
-];
+const PROTECTED_50 = 4;
 
 document.addEventListener("DOMContentLoaded", () => {
     const inputs = document.querySelectorAll(".money-input");
 
     inputs.forEach((input) => {
-        input.addEventListener("input", () => {
-            updateLiveAmounts();
-        });
+        input.addEventListener("input", updateLiveAmounts);
     });
 
     document
@@ -82,11 +69,6 @@ function formatYen(value) {
 }
 
 
-function formatMoneyCount(money, count) {
-    return `${money.toLocaleString("ja-JP")}円 × ${count}枚`;
-}
-
-
 function updateLiveAmounts() {
     const current = getCurrentMoney();
     const total = getTotal(current);
@@ -95,9 +77,8 @@ function updateLiveAmounts() {
         const amountElement = document.getElementById(`amount${money}`);
 
         if (amountElement) {
-            amountElement.textContent = formatYen(
-                money * current[money]
-            );
+            amountElement.textContent =
+                formatYen(money * current[money]);
         }
     });
 
@@ -111,61 +92,6 @@ function getTimeText(date) {
     const minutes = String(date.getMinutes()).padStart(2, "0");
 
     return `${hours}:${minutes}`;
-}
-
-
-function createMoneyRows(moneyData, options = {}) {
-    const {
-        showAmount = false,
-        protectedMoney = false
-    } = options;
-
-    const rows = [];
-
-    MONEY_LIST.forEach((money) => {
-        const count = moneyData[money] || 0;
-
-        if (count <= 0) {
-            return;
-        }
-
-        const amount = money * count;
-
-        if (showAmount) {
-            rows.push(`
-                <div class="money-row">
-                    <span>${money.toLocaleString("ja-JP")}円</span>
-                    <strong>${count}枚</strong>
-                    <span>${formatYen(amount)}</span>
-                </div>
-            `);
-            return;
-        }
-
-        if (protectedMoney && money === 50) {
-            rows.push(`
-                <div class="money-row protected-money-row">
-                    <span>
-                        ${money.toLocaleString("ja-JP")}円
-                        <span class="protected-badge">売上対象外</span>
-                    </span>
-                    <strong>${count}枚</strong>
-                    <span>${formatYen(amount)}</span>
-                </div>
-            `);
-            return;
-        }
-
-        rows.push(`
-            <div class="money-row">
-                <span>${money.toLocaleString("ja-JP")}円</span>
-                <strong>${count}枚</strong>
-                <span>${formatYen(amount)}</span>
-            </div>
-        `);
-    });
-
-    return rows.join("");
 }
 
 
@@ -192,10 +118,72 @@ function createSimpleMoneyRows(moneyData) {
 }
 
 
+/*
+ * 現在の金種から、売上額と完全一致する組み合わせを探す。
+ * 50円は4枚を必ず残し、5枚目以降だけ売上に使用する。
+ */
 function calculateSales(current, salesAmount) {
-    const remaining = {
-        ...current
-    };
+    const available = {};
+
+    MONEY_LIST.forEach((money) => {
+        available[money] = current[money];
+
+        if (money === 50) {
+            available[money] =
+                Math.max(0, current[money] - PROTECTED_50);
+        }
+    });
+
+    const dp = new Int32Array(salesAmount + 1);
+    const prevAmount = new Int32Array(salesAmount + 1);
+    const prevMoney = new Int32Array(salesAmount + 1);
+    const prevCount = new Int32Array(salesAmount + 1);
+
+    dp.fill(-1);
+    prevAmount.fill(-1);
+    prevMoney.fill(-1);
+    prevCount.fill(0);
+
+    dp[0] = 0;
+
+    for (const money of MONEY_LIST) {
+        const maxCount = available[money];
+
+        if (maxCount <= 0 || money > salesAmount) {
+            continue;
+        }
+
+        let remainingCount = maxCount;
+        let block = 1;
+
+        while (remainingCount > 0) {
+            const useCount = Math.min(block, remainingCount);
+            const value = money * useCount;
+
+            for (
+                let amount = salesAmount;
+                amount >= value;
+                amount--
+            ) {
+                if (
+                    dp[amount] === -1 &&
+                    dp[amount - value] !== -1
+                ) {
+                    dp[amount] = 1;
+                    prevAmount[amount] = amount - value;
+                    prevMoney[amount] = money;
+                    prevCount[amount] = useCount;
+                }
+            }
+
+            remainingCount -= useCount;
+            block *= 2;
+        }
+    }
+
+    if (dp[salesAmount] === -1) {
+        return null;
+    }
 
     const salesResult = {};
 
@@ -203,23 +191,30 @@ function calculateSales(current, salesAmount) {
         salesResult[money] = 0;
     });
 
-    let remainingSales = salesAmount;
+    let amount = salesAmount;
 
-    for (const money of SALES_PRIORITY) {
-        while (
-            remaining[money] > 0 &&
-            remainingSales >= money
-        ) {
-            remaining[money]--;
-            salesResult[money]++;
-            remainingSales -= money;
+    while (amount > 0) {
+        const money = prevMoney[amount];
+        const count = prevCount[amount];
+
+        if (money <= 0 || count <= 0) {
+            return null;
         }
+
+        salesResult[money] += count;
+        amount = prevAmount[amount];
     }
+
+    const remaining = {};
+
+    MONEY_LIST.forEach((money) => {
+        remaining[money] =
+            current[money] - salesResult[money];
+    });
 
     return {
         salesResult,
-        remaining,
-        remainingSales
+        remaining
     };
 }
 
@@ -290,30 +285,33 @@ function calculate() {
         return;
     }
 
-    const now = new Date();
-    const timeText = getTimeText(now);
-
     const salesAmount = total - TARGET_TOTAL;
 
-    const {
-        salesResult,
-        remaining,
-        remainingSales
-    } = calculateSales(current, salesAmount);
+    const result = calculateSales(
+        current,
+        salesAmount
+    );
 
-    /*
-     * 通常はここで0円になる。
-     * 0円にならない場合は、現在の金種だけでは
-     * 売上金額を正確に抜けない状態。
-     */
-    if (remainingSales !== 0) {
+    if (!result) {
         showError(
             `現在の金種では売上${formatYen(salesAmount)}を正確に抜けません。金種を確認してください。`
         );
         return;
     }
 
-    const actualSales = getTotal(salesResult);
+    const {
+        salesResult,
+        remaining
+    } = result;
+
+    const remainingTotal = getTotal(remaining);
+
+    if (remainingTotal !== TARGET_TOTAL) {
+        showError(
+            `売上を抜いた後のレジ金が70,000円になりませんでした。金種を確認してください。`
+        );
+        return;
+    }
 
     const {
         give,
@@ -323,13 +321,13 @@ function calculate() {
     const giveTotal = getTotal(give);
     const receiveTotal = getTotal(receive);
 
-    const registerList = createSimpleMoneyRows(current);
-
     const salesList = createSimpleMoneyRows(salesResult);
-
+    const registerList = createSimpleMoneyRows(current);
     const giveList = createSimpleMoneyRows(give);
-
     const receiveList = createSimpleMoneyRows(receive);
+
+    const now = new Date();
+    const timeText = getTimeText(now);
 
     document.getElementById("resultTotal").textContent =
         formatYen(total);
@@ -349,10 +347,10 @@ function calculate() {
         `<div class="empty-message">売上として抜くお金はありません</div>`;
 
     document.getElementById("actualSales").textContent =
-        formatYen(actualSales);
+        formatYen(salesAmount);
 
     document.getElementById("salesDifference").textContent =
-        formatYen(salesAmount - actualSales);
+        formatYen(0);
 
     document.getElementById("giveList").innerHTML =
         giveList ||
