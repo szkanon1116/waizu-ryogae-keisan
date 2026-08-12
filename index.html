@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f8dff0">
+
+    <title>新井さん両替支援システム Ver3</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="container">
+
+        <header class="header">
+            <div class="header-icon">💰</div>
+            <div>
+                <h1>新井さん両替支援システム</h1>
+                <p>Ver3.0</p>
+            </div>
+        </header>
+
+        <section class="card input-card">
+
+            <div class="section-title">
+                <span>🧾</span>
+                <h2>レジ金入力</h2>
+            </div>
+
+            <p class="description">
+                閉店時のレジ内の金種と枚数を入力してください。
+            </p>
+
+            <div class="money-table-wrapper">
+                <table class="money-table">
+                    <thead>
+                        <tr>
+                            <th>金種</th>
+                            <th>枚数</th>
+                            <th>金額</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>10,000円</td>
+                            <td>
+                                <input
+                                    id="d10000"
+                                    class="money-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="0"
+                                    inputmode="numeric"
+                                >
+                            </td>
+                            <td id="amount10000">0円</td>
+                        </tr>
+
+                        <tr>
+                            <td>5,000円</td>
+                            <td>
+                                <input
+                                    id="d5000"
+                                    class="money-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="0"
+                                    inputmode="numeric"
+                                >
+                            </td>
+                            <td id="amount5000">0円</td>
+                        </tr>
+
+                        <tr>
+                            <td>1,000円</td>
+                            <td>
+                                <input
+                                    id="d1000"
+                                    class="money-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="0"
+                                    inputmode="numeric"
+                                >
+                            </td>
+                            <td id="amount1000">0円</td>
+                        </tr>
+
+                        <tr>
+                            <td>500円</td>
+                            <td>
+                                <input
+                                    id="d500"
+                                    class="money-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="0"
+                                    inputmode="numeric"
+                                >
+                            </td>
+                            <td id="amount500">0円</td>
+                        </tr>
+
+                        <tr>
+                            <td>100円</td>
+                            <td>
+                                <input
+                                    id="d100"
+                                    class="money-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="0"
+                                    inputmode="numeric"
+                                >
+                            </td>
+                            <td id="amount100">0円</td>
+                        </tr>
+
+                        <tr class="protected-row">
+                            <td>
+                                50円
+                                <span class="protected-badge">固定</span>
+                            </td>
+                            <td>
+                                <input
+                                    id="d50"
+                                    class="money-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="0"
+                                    inputmode="numeric"
+                                >
+                            </td>
+                            <td id="amount50">0円</td>
+                        </tr>
+
+                        <tr>
+                            <td>10円</td>
+                            <td>
+                                <input
+                                    id="d10"
+                                    class="money-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="0"
+                                    inputmode="numeric"
+                                >
+                            </td>
+                            <td id="amount10">0円</td>
+                        </tr>
+
+                        <tr>
+                            <td>5円</td>
+                            <td>
+                                <input
+                                    id="d5"
+                                    class="money-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="0"
+                                    inputmode="numeric"
+                                >
+                            </td>
+                            <td id="amount5">0円</td>
+                        </tr>
+
+                        <tr>
+                            <td>1円</td>
+                            <td>
+                                <input
+                                    id="d1"
+                                    class="money-input"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="0"
+                                    inputmode="numeric"
+                                >
+                            </td>
+                            <td id="amount1">0円</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="input-total">
+                <span>現在のレジ金合計</span>
+                <strong id="liveTotal">0円</strong>
+            </div>
+
+            <button id="calculateButton" class="main-button" type="button">
+                閉店処理スタート
+            </button>
+
+        </section>
+
+        <section id="errorBox" class="card error-card hidden">
+            <div class="error-title">⚠️ 確認してください</div>
+            <div id="errorMessage"></div>
+        </section>
+
+        <section id="result" class="result-area hidden">
+
+            <div class="card total-card">
+                <div class="result-label">💰 レジ金合計</div>
+                <div id="resultTotal" class="result-total">0円</div>
+                <div id="inputTime" class="input-time"></div>
+            </div>
+
+            <div class="card">
+
+                <div class="section-title">
+                    <span>🧾</span>
+                    <h2>入力した金種</h2>
+                </div>
+
+                <div id="registerList" class="money-list">
+                    <div class="empty-message">
+                        入力された金種はありません
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card sales-card">
+
+                <div class="section-title">
+                    <span>📊</span>
+                    <h2>今日の売上</h2>
+                </div>
+
+                <div id="salesAmount" class="big-amount">
+                    0円
+                </div>
+
+                <p class="note">
+                    レジ金合計 − 明日の釣り銭70,000円
+                </p>
+
+            </div>
+
+            <div class="card">
+
+                <div class="section-title">
+                    <span>💸</span>
+                    <h2>売上として抜くお金</h2>
+                </div>
+
+                <p class="note">
+                    50円玉4枚は明日の釣り銭として残すため、売上として抜きません。
+                </p>
+
+                <div id="salesList" class="money-list">
+                    <div class="empty-message">
+                        売上として抜くお金はありません
+                    </div>
+                </div>
+
+                <div class="summary-row">
+                    <span>抜く金額合計</span>
+                    <strong id="actualSales">0円</strong>
+                </div>
+
+                <div id="salesDifferenceRow" class="summary-row difference-row">
+                    <span>売上との差額</span>
+                    <strong id="salesDifference">0円</strong>
+                </div>
+
+            </div>
+
+            <div class="card exchange-card">
+
+                <div class="section-title">
+                    <span>🔄</span>
+                    <h2>新井さんとの両替</h2>
+                </div>
+
+                <div class="exchange-section give-section">
+                    <div class="exchange-title">
+                        <span>📤</span>
+                        <span>新井さんに渡すお金</span>
+                    </div>
+
+                    <div id="giveList" class="money-list">
+                        <div class="empty-message">
+                            渡すお金はありません
+                        </div>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>渡すお金合計</span>
+                        <strong id="giveTotal">0円</strong>
+                    </div>
+                </div>
+
+                <div class="exchange-divider"></div>
+
+                <div class="exchange-section receive-section">
+                    <div class="exchange-title">
+                        <span>📥</span>
+                        <span>新井さんからもらうお金</span>
+                    </div>
+
+                    <div id="receiveList" class="money-list">
+                        <div class="empty-message">
+                            もらうお金はありません
+                        </div>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>もらうお金合計</span>
+                        <strong id="receiveTotal">0円</strong>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card tomorrow-card">
+
+                <div class="section-title">
+                    <span>🌷</span>
+                    <h2>明日の釣り銭</h2>
+                </div>
+
+                <div class="tomorrow-total">
+                    70,000円
+                </div>
+
+                <div class="money-list tomorrow-list">
+
+                    <div class="money-row">
+                        <span>5,000円</span>
+                        <strong>6枚</strong>
+                        <span>30,000円</span>
+                    </div>
+
+                    <div class="money-row">
+                        <span>1,000円</span>
+                        <strong>10枚</strong>
+                        <span>10,000円</span>
+                    </div>
+
+                    <div class="money-row">
+                        <span>500円</span>
+                        <strong>20枚</strong>
+                        <span>10,000円</span>
+                    </div>
+
+                    <div class="money-row">
+                        <span>100円</span>
+                        <strong>198枚</strong>
+                        <span>19,800円</span>
+                    </div>
+
+                    <div class="money-row protected-money-row">
+                        <span>
+                            50円
+                            <span class="protected-badge">売上対象外</span>
+                        </span>
+                        <strong>4枚</strong>
+                        <span>200円</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card complete-card">
+                <div class="complete-icon">✅</div>
+                <div class="complete-title">閉店処理完了</div>
+                <div id="completeTime" class="complete-time"></div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

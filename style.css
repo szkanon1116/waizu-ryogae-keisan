@@ -1,0 +1,704 @@
+:root {
+    --bg: #fff8fc;
+    --card: #ffffff;
+    --text: #4f4a52;
+    --sub-text: #8b858e;
+    --border: #eadfe7;
+
+    --pink: #f6c9df;
+    --pink-light: #fff0f7;
+    --pink-dark: #d995b8;
+
+    --blue: #cfe8f5;
+    --blue-light: #eef9fd;
+    --blue-dark: #82b8d0;
+
+    --green: #d5ecd9;
+    --green-light: #f0faf2;
+    --green-dark: #86b993;
+
+    --yellow: #f8e7b7;
+    --yellow-light: #fff9e9;
+    --yellow-dark: #c7a956;
+
+    --purple: #ded4f2;
+    --purple-light: #f7f3fc;
+    --purple-dark: #a896c8;
+
+    --danger: #f2b8bd;
+    --danger-light: #fff1f2;
+
+    --shadow: 0 4px 18px rgba(120, 95, 115, 0.08);
+    --radius: 18px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, #ffeaf4 0, transparent 28%),
+        radial-gradient(circle at top right, #eaf7fc 0, transparent 28%),
+        var(--bg);
+    color: var(--text);
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        "Yu Gothic",
+        YuGothic,
+        Meiryo,
+        sans-serif;
+    line-height: 1.6;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.container {
+    width: min(100% - 32px, 760px);
+    margin: 0 auto;
+    padding: 28px 0 50px;
+}
+
+/* Header */
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+    padding: 4px 4px 10px;
+}
+
+.header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    border-radius: 18px;
+    background: var(--pink-light);
+    box-shadow: var(--shadow);
+    font-size: 30px;
+}
+
+.header h1 {
+    margin: 0;
+    color: #514951;
+    font-size: clamp(21px, 5vw, 30px);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+.header p {
+    margin: 1px 0 0;
+    color: var(--pink-dark);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* Cards */
+
+.card {
+    margin-bottom: 18px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 8px;
+}
+
+.section-title > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    background: var(--pink-light);
+    font-size: 18px;
+}
+
+.section-title h2 {
+    margin: 0;
+    color: #514951;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.description {
+    margin: 0 0 18px;
+    color: var(--sub-text);
+    font-size: 13px;
+}
+
+/* Money input table */
+
+.money-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+.money-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.money-table th,
+.money-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+}
+
+.money-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.money-table th {
+    background: var(--pink-light);
+    color: #6d626b;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.money-table th:nth-child(1) {
+    width: 34%;
+}
+
+.money-table th:nth-child(2) {
+    width: 31%;
+}
+
+.money-table th:nth-child(3) {
+    width: 35%;
+}
+
+.money-table td {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.money-table td:last-child {
+    color: var(--sub-text);
+    font-weight: 700;
+}
+
+.money-input {
+    width: 90px;
+    max-width: 100%;
+    height: 42px;
+    padding: 5px 8px;
+    border: 2px solid #e8dce5;
+    border-radius: 11px;
+    outline: none;
+    background: #fff;
+    color: var(--text);
+    text-align: center;
+    font-size: 17px;
+    font-weight: 700;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease;
+}
+
+.money-input:focus {
+    border-color: var(--pink-dark);
+    background: var(--pink-light);
+    box-shadow: 0 0 0 4px rgba(217, 149, 184, 0.12);
+}
+
+.money-input::-webkit-outer-spin-button,
+.money-input::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+.money-input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.protected-row {
+    background: #fffaf0;
+}
+
+.protected-badge {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--yellow);
+    color: #806b2c;
+    font-size: 10px;
+    font-weight: 800;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* Live total */
+
+.input-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 15px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: var(--blue-light);
+    color: #617782;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.input-total strong {
+    color: #507a8d;
+    font-size: 22px;
+}
+
+/* Main button */
+
+.main-button {
+    width: 100%;
+    min-height: 58px;
+    margin-top: 18px;
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 15px;
+    background: var(--pink);
+    color: #674d5c;
+    box-shadow: 0 5px 0 #e7aecb;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        background 0.12s ease;
+}
+
+.main-button:hover {
+    background: #f3bdd7;
+}
+
+.main-button:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #e7aecb;
+}
+
+.main-button:focus-visible {
+    outline: 3px solid rgba(217, 149, 184, 0.35);
+    outline-offset: 3px;
+}
+
+/* Error */
+
+.error-card {
+    border-color: #efc9cd;
+    background: var(--danger-light);
+}
+
+.error-title {
+    margin-bottom: 5px;
+    color: #a25d65;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+#errorMessage {
+    color: #8e666b;
+    font-size: 14px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Result */
+
+.result-area {
+    animation: resultFadeIn 0.28s ease;
+}
+
+@keyframes resultFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.total-card {
+    border-color: #e4d4e0;
+    background:
+        linear-gradient(135deg, #fff2f8 0%, #ffffff 55%, #eff9fd 100%);
+    text-align: center;
+}
+
+.result-label {
+    color: var(--sub-text);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.result-total {
+    margin: 4px 0 2px;
+    color: #554c54;
+    font-size: clamp(38px, 10vw, 54px);
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+}
+
+.input-time {
+    color: #9c929b;
+    font-size: 12px;
+}
+
+.input-time::before {
+    content: "🕐 ";
+}
+
+/* Amount */
+
+.big-amount {
+    margin-top: 4px;
+    color: #657f89;
+    font-size: clamp(32px, 8vw, 44px);
+    font-weight: 900;
+}
+
+.note {
+    margin: 5px 0 0;
+    color: var(--sub-text);
+    font-size: 12px;
+}
+
+/* Money list */
+
+.money-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.money-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 42px;
+    padding: 8px 12px;
+    border-radius: 11px;
+    background: #faf8fa;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.money-row span:first-child {
+    font-weight: 700;
+}
+
+.money-row strong {
+    color: #655b64;
+    white-space: nowrap;
+}
+
+.money-row span:last-child {
+    color: var(--sub-text);
+    font-weight: 700;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.empty-message {
+    padding: 14px;
+    border-radius: 11px;
+    background: #faf8fa;
+    color: #aaa2a9;
+    font-size: 13px;
+    text-align: center;
+}
+
+.sales-card {
+    border-color: #dcecf0;
+    background: linear-gradient(135deg, #f4fcfe, #ffffff);
+}
+
+/* Summary */
+
+.summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 13px 15px;
+    border-radius: 12px;
+    background: var(--pink-light);
+    color: #6d626b;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.summary-row strong {
+    color: #65505c;
+    font-size: 18px;
+    white-space: nowrap;
+}
+
+.difference-row {
+    background: var(--yellow-light);
+}
+
+.difference-row strong {
+    color: #8a7439;
+}
+
+/* Exchange */
+
+.exchange-card {
+    background: linear-gradient(135deg, #ffffff, #fcf9ff);
+}
+
+.exchange-section {
+    padding: 16px;
+    border-radius: 14px;
+}
+
+.give-section {
+    background: var(--green-light);
+}
+
+.receive-section {
+    background: var(--blue-light);
+}
+
+.exchange-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 11px;
+    color: #5f5960;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.exchange-divider {
+    height: 12px;
+}
+
+.give-section .money-row {
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.receive-section .money-row {
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.give-section .summary-row {
+    background: #e5f3e8;
+}
+
+.receive-section .summary-row {
+    background: #e3f3fa;
+}
+
+.give-section .summary-row strong {
+    color: #5f8768;
+}
+
+.receive-section .summary-row strong {
+    color: #5b8295;
+}
+
+/* Tomorrow */
+
+.tomorrow-card {
+    border-color: #eee2bd;
+    background: linear-gradient(135deg, #fffdf5, #ffffff);
+}
+
+.tomorrow-total {
+    margin: 3px 0 14px;
+    color: #89743d;
+    font-size: 34px;
+    font-weight: 900;
+}
+
+.tomorrow-list {
+    gap: 6px;
+}
+
+.tomorrow-list .money-row {
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.protected-money-row {
+    border: 1px solid #f1dfab;
+    background: #fff9e9 !important;
+}
+
+/* Complete */
+
+.complete-card {
+    padding: 20px;
+    border-color: #d8e9dc;
+    background: var(--green-light);
+    text-align: center;
+}
+
+.complete-icon {
+    font-size: 30px;
+}
+
+.complete-title {
+    margin-top: 2px;
+    color: #5e8667;
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.complete-time {
+    margin-top: 2px;
+    color: #8a9b8d;
+    font-size: 12px;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+    .container {
+        width: min(100% - 20px, 760px);
+        padding-top: 18px;
+    }
+
+    .header {
+        margin-bottom: 16px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        flex-basis: 50px;
+        border-radius: 15px;
+        font-size: 26px;
+    }
+
+    .header h1 {
+        font-size: 21px;
+    }
+
+    .card {
+        margin-bottom: 13px;
+        padding: 17px;
+        border-radius: 16px;
+    }
+
+    .section-title h2 {
+        font-size: 17px;
+    }
+
+    .money-table th,
+    .money-table td {
+        padding: 8px 5px;
+    }
+
+    .money-input {
+        width: 76px;
+        height: 40px;
+    }
+
+    .input-total {
+        padding: 12px 13px;
+    }
+
+    .input-total strong {
+        font-size: 19px;
+    }
+
+    .main-button {
+        min-height: 55px;
+        font-size: 17px;
+    }
+
+    .money-row {
+        grid-template-columns: 1fr auto;
+    }
+
+    .money-row span:last-child {
+        grid-column: 1 / -1;
+        margin-top: -4px;
+        text-align: left;
+        font-size: 12px;
+    }
+
+    .summary-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .summary-row strong {
+        font-size: 19px;
+    }
+
+    .protected-badge {
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 390px) {
+    .money-table th:nth-child(1) {
+        width: 30%;
+    }
+
+    .money-table th:nth-child(2) {
+        width: 34%;
+    }
+
+    .money-table th:nth-child(3) {
+        width: 36%;
+    }
+
+    .money-input {
+        width: 68px;
+    }
+
+    .header h1 {
+        font-size: 19px;
+    }
+}
