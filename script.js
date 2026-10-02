@@ -119,89 +119,144 @@ function createSimpleMoneyRows(moneyData) {
 
 
 /*
- * 現在の金種から、売上額と完全一致する組み合わせを探す。
- * 50円は4枚を必ず残し、5枚目以降だけ売上に使用する。
+ * 基準枚数を超えている余剰金種を優先して売上に使用。
+ *
+ * 基準枚数
+ * 5,000円 → 6枚
+ * 1,000円 → 10枚
+ * 500円   → 20枚
+ * 100円   → 198枚
+ * 50円    → 4枚
+ *
+ * 余剰分だけで売上額を作れない場合のみ、
+ * 基準枚数内の金種を使用する。
+ *
+ * 基準金種を使う場合は、
+ * 5,000円を最も強く保護し、
+ * 次に1,000円、500円、100円、50円の順で保護する。
  */
 function calculateSales(current, salesAmount) {
-    const available = {};
-
-    MONEY_LIST.forEach((money) => {
-        available[money] = current[money];
-
-        if (money === 50) {
-            available[money] =
-                Math.max(0, current[money] - PROTECTED_50);
-        }
-    });
-
-    const dp = new Int32Array(salesAmount + 1);
-    const prevAmount = new Int32Array(salesAmount + 1);
-    const prevMoney = new Int32Array(salesAmount + 1);
-    const prevCount = new Int32Array(salesAmount + 1);
-
-    dp.fill(-1);
-    prevAmount.fill(-1);
-    prevMoney.fill(-1);
-    prevCount.fill(0);
-
-    dp[0] = 0;
-
-    for (const money of MONEY_LIST) {
-        const maxCount = available[money];
-
-        if (maxCount <= 0 || money > salesAmount) {
-            continue;
-        }
-
-        let remainingCount = maxCount;
-        let block = 1;
-
-        while (remainingCount > 0) {
-            const useCount = Math.min(block, remainingCount);
-            const value = money * useCount;
-
-            for (
-                let amount = salesAmount;
-                amount >= value;
-                amount--
-            ) {
-                if (
-                    dp[amount] === -1 &&
-                    dp[amount - value] !== -1
-                ) {
-                    dp[amount] = 1;
-                    prevAmount[amount] = amount - value;
-                    prevMoney[amount] = money;
-                    prevCount[amount] = useCount;
-                }
-            }
-
-            remainingCount -= useCount;
-            block *= 2;
-        }
-    }
-
-    if (dp[salesAmount] === -1) {
-        return null;
-    }
-
     const salesResult = {};
 
     MONEY_LIST.forEach((money) => {
         salesResult[money] = 0;
     });
 
+    const items = [];
+
+    const reservePriority = {
+        5000: 1000000000,
+        1000: 1000000,
+        500: 10000,
+        100: 100,
+        50: 10,
+        10000: 0,
+        10: 0,
+        5: 0,
+        1: 0
+    };
+
+    MONEY_LIST.forEach((money) => {
+        const count = current[money] || 0;
+        const targetCount = TARGET[money] || 0;
+
+        const surplusCount =
+            Math.max(0, count - targetCount);
+
+        const protectedCount =
+            Math.min(count, targetCount);
+
+        /*
+         * 基準枚数を超えた分は完全に自由。
+         */
+        for (let i = 0; i < surplusCount; i++) {
+            items.push({
+                money,
+                cost: 0
+            });
+        }
+
+        /*
+         * 基準枚数内の金種。
+         * 使用すると「保護金種を崩した」としてコストを加算。
+         */
+        for (let i = 0; i < protectedCount; i++) {
+            items.push({
+                money,
+                cost: reservePriority[money] || 0
+            });
+        }
+    });
+
+    if (salesAmount === 0) {
+        return {
+            salesResult,
+            remaining: { ...current }
+        };
+    }
+
+    if (salesAmount < 0) {
+        return null;
+    }
+
+    /*
+     * DPで売上額を完全一致させる。
+     *
+     * 同じ金額を作れる場合は、
+     * 基準金種を崩すコストが小さい組み合わせを採用する。
+     */
+    const dpCost = new Float64Array(salesAmount + 1);
+    const prevAmount = new Int32Array(salesAmount + 1);
+    const prevMoney = new Int32Array(salesAmount + 1);
+
+    dpCost.fill(Infinity);
+    prevAmount.fill(-1);
+    prevMoney.fill(-1);
+
+    dpCost[0] = 0;
+
+    for (const item of items) {
+        const money = item.money;
+        const cost = item.cost;
+
+        if (money > salesAmount) {
+            continue;
+        }
+
+        for (
+            let amount = salesAmount;
+            amount >= money;
+            amount--
+        ) {
+            if (dpCost[amount - money] === Infinity) {
+                continue;
+            }
+
+            const candidateCost =
+                dpCost[amount - money] + cost;
+
+            if (candidateCost < dpCost[amount]) {
+                dpCost[amount] = candidateCost;
+                prevAmount[amount] = amount - money;
+                prevMoney[amount] = money;
+            }
+        }
+    }
+
+    if (dpCost[salesAmount] === Infinity) {
+        return null;
+    }
+
     let amount = salesAmount;
 
     while (amount > 0) {
         const money = prevMoney[amount];
-        const count = prevCount[amount];
 
-        if (money <= 0 || count <= 0) {
+        if (money <= 0) {
             return null;
         }
 
-        salesResult[money] += count;
+        salesResult[money] += 1;
         amount = prevAmount[amount];
     }
 
